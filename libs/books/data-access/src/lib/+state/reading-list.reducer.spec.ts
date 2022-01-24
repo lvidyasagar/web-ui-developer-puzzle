@@ -3,7 +3,7 @@ import {
   initialState,
   readingListAdapter,
   reducer,
-  State
+  State,
 } from './reading-list.reducer';
 import { createBook, createReadingListItem } from '@tmo/shared/testing';
 
@@ -22,7 +22,7 @@ describe('Books Reducer', () => {
       const list = [
         createReadingListItem('A'),
         createReadingListItem('B'),
-        createReadingListItem('C')
+        createReadingListItem('C'),
       ];
       const action = ReadingListActions.loadReadingListSuccess({ list });
       const result: State = reducer(initialState, action);
@@ -31,13 +31,15 @@ describe('Books Reducer', () => {
     });
 
     it('loadBooksError should load error for reading list', () => {
-      const action = ReadingListActions.loadReadingListError({ error:'Error' });
+      const action = ReadingListActions.loadReadingListError({
+        error: 'Error',
+      });
       const result: State = reducer(initialState, action);
       expect(result.error).toBe('Error');
     });
 
     it('confirm AddToReadingList should add book to reading list', () => {
-      const book =createBook('A');
+      const book = createBook('A');
       const action = ReadingListActions.confirmedAddToReadingList({ book });
       const result: State = reducer(initialState, action);
       expect(result.ids).toEqual(['A']);
@@ -45,15 +47,17 @@ describe('Books Reducer', () => {
 
     it('failedAddToReadingList should undo book addition to the state', () => {
       const action = ReadingListActions.failedAddToReadingList({
-        book: createBook('B')
+        book: createBook('B'),
       });
       const result: State = reducer(state, action);
       expect(result.ids).toEqual(['A']);
     });
 
     it('confirm RemoveFromReadingList should remove book from reading list', () => {
-      const item =createReadingListItem('A');
-      const action = ReadingListActions.confirmedRemoveFromReadingList({ item });
+      const item = createReadingListItem('A');
+      const action = ReadingListActions.confirmedRemoveFromReadingList({
+        item,
+      });
       const result: State = reducer(initialState, action);
       expect(result.entities).toEqual({});
       expect(result.ids).toEqual([]);
@@ -61,21 +65,32 @@ describe('Books Reducer', () => {
 
     it('failedRemoveFromReadingList should undo book removal from the state', () => {
       const action = ReadingListActions.failedRemoveFromReadingList({
-        item: createReadingListItem('C')
+        item: createReadingListItem('C'),
       });
-
       const result: State = reducer(state, action);
-
       expect(result.ids).toEqual(['A', 'B', 'C']);
+    });
+
+    it('confirm confirmedMarkBookAsFinished should mark book as finished in the reading list', () => {
+      const item = createReadingListItem('A');
+      const action = ReadingListActions.confirmedMarkBookAsFinished({ item });
+      const result: State = reducer(state, action);
+      expect(result.entities['A'].finished).toEqual(true);
+    });
+
+    it('failedMarkBookAsFinished should should not mark book as finished in the reading list', () => {
+      const action = ReadingListActions.failedMarkBookAsFinished({
+        item: createReadingListItem('B'),
+      });
+      const result: State = reducer(state, action);
+      expect(result.entities['B'].finished).toBeUndefined();
     });
   });
 
   describe('unknown action', () => {
     it('should return the previous state', () => {
       const action = {} as any;
-
       const result = reducer(initialState, action);
-
       expect(result).toEqual(initialState);
     });
   });
