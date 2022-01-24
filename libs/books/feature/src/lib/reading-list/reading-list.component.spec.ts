@@ -10,6 +10,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { getReadingList, removeFromReadingList } from '@tmo/books/data-access';
 import { MemoizedSelector } from '@ngrx/store';
 import { ReadingListItem } from '@tmo/shared/models';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ReadingListComponent', () => {
   let component: ReadingListComponent;
@@ -20,7 +21,7 @@ describe('ReadingListComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [BooksFeatureModule, SharedTestingModule],
+      imports: [BooksFeatureModule, NoopAnimationsModule, SharedTestingModule],
       providers: [provideMockStore({ initialState })],
     }).compileComponents();
   }));
