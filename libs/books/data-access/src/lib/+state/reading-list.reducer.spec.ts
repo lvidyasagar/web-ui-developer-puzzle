@@ -3,7 +3,7 @@ import {
   initialState,
   readingListAdapter,
   reducer,
-  State
+  State,
 } from './reading-list.reducer';
 import { createBook, createReadingListItem } from '@tmo/shared/testing';
 
@@ -22,7 +22,7 @@ describe('Books Reducer', () => {
       const list = [
         createReadingListItem('A'),
         createReadingListItem('B'),
-        createReadingListItem('C')
+        createReadingListItem('C'),
       ];
       const action = ReadingListActions.loadReadingListSuccess({ list });
       const result: State = reducer(initialState, action);
@@ -61,21 +61,51 @@ describe('Books Reducer', () => {
 
     it('failedRemoveFromReadingList should undo book removal from the state', () => {
       const action = ReadingListActions.failedRemoveFromReadingList({
-        item: createReadingListItem('C')
+        item: createReadingListItem('C'),
       });
-
       const result: State = reducer(state, action);
-
       expect(result.ids).toEqual(['A', 'B', 'C']);
+    });
+
+    it('confirmedUndoAddBookToReadingList should undo adding book to the reading list', () => {
+      const book = createBook('C');
+      const action = ReadingListActions.confirmedUndoAddBookToReadingList({
+        book,
+      });
+      const result: State = reducer(state, action);
+      expect(result.ids).toEqual(['A', 'B']);
+    });
+
+    it('failedUndoAddBookToReadingList should not undo adding book to the reading list', () => {
+      const action = ReadingListActions.failedUndoAddBookToReadingList({
+        book: createBook('C'),
+      });
+      const result: State = reducer(state, action);
+      expect(result.ids).toEqual(['A', 'B', 'C']);
+    });
+
+    it('confirmedUndoRemoveFromReadingList should undo removing book from the reading list', () => {
+      const item = createReadingListItem('C');
+      const action = ReadingListActions.confirmedUndoRemoveFromReadingList({
+        item,
+      });
+      const result: State = reducer(state, action);
+      expect(result.ids).toEqual(['A', 'B', 'C']);
+    });
+
+    it('failedUndoRemoveFromReadingList should not undo remove book from the reading list', () => {
+      const action = ReadingListActions.failedUndoRemoveFromReadingList({
+        item: createReadingListItem('C'),
+      });
+      const result: State = reducer(state, action);
+      expect(result.ids).toEqual(['A', 'B']);
     });
   });
 
   describe('unknown action', () => {
     it('should return the previous state', () => {
       const action = {} as any;
-
       const result = reducer(initialState, action);
-
       expect(result).toEqual(initialState);
     });
   });
