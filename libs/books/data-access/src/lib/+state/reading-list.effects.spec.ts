@@ -112,4 +112,42 @@ describe('ToReadEffects', () => {
         .flush(item, { status: 400, statusText: 'Cannot Delete Reading Item' });
     });
   });
+
+  describe('markBookAsFinish$', () => {
+    it('should work', (done) => {
+      const item = createReadingListItem('B');
+      actions = new ReplaySubject();
+      actions.next(ReadingListActions.markReadingBookAsFinished({ item }));
+
+      effects.markBookAsFinish$.subscribe((action) => {
+        expect(action).toEqual(
+          ReadingListActions.confirmedMarkBookAsFinished({ item })
+        );
+        done();
+      });
+
+      httpMock
+        .expectOne(`/api/reading-list/${item.bookId}/finished`)
+        .flush(item);
+    });
+
+    it('should return failedMarkBookAsFinished with readingItem marked as finished, on fail', (done) => {
+      const item = createReadingListItem('B');
+      actions = new ReplaySubject();
+      actions.next(ReadingListActions.markReadingBookAsFinished({ item }));
+
+      effects.markBookAsFinish$.subscribe((action) => {
+        expect(action).toEqual(
+          ReadingListActions.failedMarkBookAsFinished({ item })
+        );
+        done();
+      });
+      httpMock
+        .expectOne(`/api/reading-list/${item.bookId}/finished`)
+        .flush(item, {
+          status: 400,
+          statusText: 'Cannot mark Reading Item as Finished',
+        });
+    });
+  });
 });

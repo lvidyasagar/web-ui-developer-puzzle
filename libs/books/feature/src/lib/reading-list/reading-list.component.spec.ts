@@ -7,7 +7,11 @@ import {
 import { ReadingListComponent } from './reading-list.component';
 import { BooksFeatureModule } from '@tmo/books/feature';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { getReadingList, removeFromReadingList } from '@tmo/books/data-access';
+import {
+  getReadingList,
+  markReadingBookAsFinished,
+  removeFromReadingList,
+} from '@tmo/books/data-access';
 import { MemoizedSelector } from '@ngrx/store';
 import { ReadingListItem } from '@tmo/shared/models';
 
@@ -41,6 +45,15 @@ describe('ReadingListComponent', () => {
     const expectedAction = removeFromReadingList({ item });
     spyOn(mockStore, 'dispatch').and.callThrough();
     component.removeFromReadingList(item);
+    fixture.detectChanges();
+    expect(mockStore.dispatch).toHaveBeenCalledWith(expectedAction);
+  });
+
+  it('should call mark reading book as finished action with correct reading book', () => {
+    const item = createReadingListItem('A');
+    const expectedAction = markReadingBookAsFinished({ item });
+    spyOn(mockStore, 'dispatch').and.callThrough();
+    component.markBookAsFinish(item);
     fixture.detectChanges();
     expect(mockStore.dispatch).toHaveBeenCalledWith(expectedAction);
   });
